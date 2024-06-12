@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monitoramento em Tempo Real</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+</head>
+<body>
+    <h1>Monitoramento em Tempo Real</h1>
+    <div id="monitoramentos">
+        <h2>Monitoramentos</h2>
+        <ul id="lista-monitoramentos"></ul>
+    </div>
+    <div id="alertas">
+        <h2>Alertas</h2>
+        <ul id="lista-alertas"></ul>
+    </div>
+    <script>
+        var socket = io();
+
+        socket.on('nova_leitura', function(data) {
+            var item = document.createElement('li');
+            item.textContent = `Sensor: ${data.id_sensor}, Timestamp: ${data.timestamp}, Valor: ${data.valor}`;
+            document.getElementById('lista-monitoramentos').appendChild(item);
+        });
+
+        socket.on('novo_alerta', function(data) {
+            var item = document.createElement('li');
+            item.textContent = `Sensor: ${data.id_sensor}, Hora: ${data.hora_alerta}, Descrição: ${data.descricao}, Status: ${data.status}`;
+            document.getElementById('lista-alertas').appendChild(item);
+        });
+    </script>
+</body>
+</html>
