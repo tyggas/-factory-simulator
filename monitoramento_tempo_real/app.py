@@ -7,6 +7,8 @@ from datetime import datetime
 import threading
 import time
 
+#pip install flask flask-socketio mysql-connector-python faker
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -45,8 +47,7 @@ def gerar_monitoramentos():
         else:
             continue
 
-        
-        socketio.emit('nova_leitura', {'id_sensor': id_sensor, 'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'), 'valor': valor})
+        socketio.emit('nova_leitura', {'id_sensor': id_sensor, 'tipo': tipo, 'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'), 'valor': valor})
 
         if random.random() < 0.1:
             if tipo == "Temperatura":

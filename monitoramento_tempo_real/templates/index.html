@@ -1,32 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Monitoramento em Tempo Real</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <title>Monitoramento de Sensores</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 </head>
 <body>
-    <h1>Monitoramento em Tempo Real</h1>
-    <div id="monitoramentos">
-        <h2>Monitoramentos</h2>
-        <ul id="lista-monitoramentos"></ul>
+    <h1>Monitoramento de Sensores</h1>
+    <div id="sensores">
+        <!-- Aqui vamos adicionar os sensores dinamicamente -->
     </div>
-    <div id="alertas">
-        <h2>Alertas</h2>
-        <ul id="lista-alertas"></ul>
-    </div>
+
     <script>
-        var socket = io();
+        $(document).ready(function() {
+            var socket = io();
 
-        socket.on('nova_leitura', function(data) {
-            var item = document.createElement('li');
-            item.textContent = `Sensor: ${data.id_sensor}, Timestamp: ${data.timestamp}, Valor: ${data.valor}`;
-            document.getElementById('lista-monitoramentos').appendChild(item);
-        });
+            // Mapeamento de sensores para facilitar o acesso e atualização
+            var sensores = {};
 
-        socket.on('novo_alerta', function(data) {
-            var item = document.createElement('li');
-            item.textContent = `Sensor: ${data.id_sensor}, Hora: ${data.hora_alerta}, Descrição: ${data.descricao}, Status: ${data.status}`;
-            document.getElementById('lista-alertas').appendChild(item);
+            socket.on('nova_leitura', function(data) {
+                var id_sensor = data.id_sensor;
+                var tipo = data.tipo;
+                var timestamp = data.timestamp;
+                var valor = data.valor;
+
+                if (!sensores[id_sensor]) {
+                    // Se o sensor ainda não estiver no mapeamento, adiciona-o
+                    sensores[id_sensor] = {
+                        tipo: tipo,
+                        timestamp: timestamp,
+                        valor: valor
+                    };
+
+                    // Cria a div do sensor no HTML
+                    $('#sensores').append(
+                        '<div id="sensor-' + id_sensor + '">' +
+                        '<h2>Sensor ' + id_sensor + ' (' + tipo + ')</h2>' +
+                        '<p>Valor: <span id="valor-' + id_sensor + '">' + valor + '</span></p>' +
+                        '<p>Última atualização: <span id="timestamp-' + id_sensor + '">' + timestamp + '</span></p>' +
+                        '</div>'
+                    );
+                } else {
+                    // Atualiza os valores do sensor existente
+                    $('#valor-' + id_sensor).text(valor);
+                    $('#timestamp-' + id_sensor).text(timestamp);
+                }
+            });
+
+            socket.on('novo_alerta', function(data) {
+                var id_sensor = data.id_sensor;
+                var hora_alerta = data.hora_alerta;
+                var descricao = data.descricao;
+                var status = data.status;
+
+                alert('Alerta para o Sensor ' + id_sensor + ': ' + descricao + ' (Status: ' + status + ')');
+            });
         });
     </script>
 </body>
